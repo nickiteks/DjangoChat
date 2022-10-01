@@ -1,22 +1,28 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel = 'stylesheet' type = 'text/css' media = 'screen' href = '{% static "styles/main.css" %}'>
     <title>Document</title>
 </head>
 <body>
+    <section class = "main--container">
+        <form id = "post_form">
+            {% csrf_token %}
+            <input type = "text" name = "body"/>
+        </form>
 
-    <form id = "post_form">
-        <input type = "text" name = "body"/>
-    </form>
-
-    <h3>TEST Chat</h3>
-    {% for post in Posts %}
-    <h3>{{post.body}}</h3
-    <h4>{{post.created|timesince}} ago </h4>
-    {% endfor %}
+        
+        <div id = "post_list">
+            {% for post in Posts %}
+                <h3>{{post.body}}</h3
+                <h4>{{post.created|timesince}} ago </h4>
+            {% endfor %}
+        </div>
+    </section>
 </body>
 <script type = "text/javascript">
 
@@ -27,10 +33,33 @@
         let bodyText = e.target.body.value
         console.log(bodyText)
         form.reset()
+
+        submitData(bodyText)
     })
 
-    let submitData = async() => {
-        let response = await fetch('/add/')
+    let submitData = async(bodyText) => {
+        let response = await fetch('/add/', {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json',
+                'Accept': 'application/json'
+            },
+            body:JSON.stringify({'body':bodyText})
+        })
+
+        let data = await response.json()
+        console.log('Data:',data)
+        addMessageToDom(data)
+    }
+
+    let addMessageToDom = async (message) =>{
+        let postList = document.getElementById('post_list')
+
+        let postWrapper = ` <h3>${message.body}</h3
+                            <h4>${message.created} ago </h4>
+                            `
+
+        postList.insertAdjacentHTML('afterbegin',postWrapper)         
     }
 
 </script>
