@@ -1,4 +1,5 @@
 from multiprocessing import context
+from django.http import JsonResponse
 from django.shortcuts import render
 from .models import Post
 from rest_framework.decorators import api_view
@@ -23,3 +24,7 @@ def add_post(request):
     serializer = PostSerializer(post, many = False)
 
     return Response(serializer.data)
+
+def getPosts(request):
+    posts = Post.objects.all()[:20]
+    return JsonResponse({'Posts':list(posts.values())})
