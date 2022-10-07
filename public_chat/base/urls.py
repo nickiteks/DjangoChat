@@ -5,4 +5,5 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("add/", views.add_post),
     path("ajax/getPosts/", views.getPosts, name='getPosts'),
+    path("register/", views.registerPage, name = 'register')
 ]
