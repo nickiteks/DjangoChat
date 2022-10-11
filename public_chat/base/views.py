@@ -5,7 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
+from django.contrib.auth import authenticate, login, logout
 from .models import Customer,Post
 from .serializers import PostSerializer
 from .forms import CreateUserForm
@@ -59,4 +59,26 @@ def registerPage(request):
     
     context = {'form':form}
     return render(request,'register.html',context)
+
+def loginPage(request):
+    if request.method == 'POST':
+
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request,user)
+            return redirect('index')
+        else:
+            return redirect('login')
+
+    context = {}
+    return render(request,'login.html',context)
+
+def logoutUser(request):
+    logout(request)
+    return redirect('login')
+
 
