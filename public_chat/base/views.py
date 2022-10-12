@@ -9,20 +9,20 @@ from django.contrib.auth import authenticate, login, logout
 from .models import Customer,Post
 from .serializers import PostSerializer
 from .forms import CreateUserForm
+from django.contrib import messages
 
 # Create your views here.
 def index(request):
     posts = Post.objects.all().order_by('-created')
-
     context = {'Posts':posts}
     return render(request, "index.html",context)
 
 @api_view(['POST'])
 def add_post(request):
     data = request.data
-    print('Data',data)
     post = Post.objects.create(
-        body=data['body']
+        body=data['body'],
+        customer = Customer.objects.get(id = data['user'])
     )
 
     serializer = PostSerializer(post, many = False)
@@ -31,7 +31,10 @@ def add_post(request):
 
 def getPosts(request):
     posts = Post.objects.all()[:20]
-    return JsonResponse({'Posts':list(posts.values())})
+    user_list = []
+    for post in posts:
+        user_list.append(post.customer.name)
+    return JsonResponse({'Posts':list(posts.values()),'Users':list(user_list)})
 
 
 def registerPage(request):
@@ -55,7 +58,7 @@ def registerPage(request):
             )
             customer.save()
             
-            return redirect('index')
+            return redirect('login')
     
     context = {'form':form}
     return render(request,'register.html',context)
@@ -72,7 +75,7 @@ def loginPage(request):
             login(request,user)
             return redirect('index')
         else:
-            return redirect('login')
+            messages.info(request, 'incorrect')
 
     context = {}
     return render(request,'login.html',context)

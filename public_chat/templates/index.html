@@ -23,6 +23,11 @@
             {% endfor %}
         </div>
     </section>
+
+    {% if user.is_authenticated %}
+            <a style="margin-top: 5px" class="navbar-brand" href="">Привет, {{user.customer}}</a>
+    {% endif %}
+    {{ request.user.customer.id|json_script:"user_id" }}
 </body>
 <script type = "text/javascript">
 
@@ -31,20 +36,21 @@
     form.addEventListener('submit',(e) => {
         e.preventDefault()
         let bodyText = e.target.body.value
-        console.log(bodyText)
+        const user_id = JSON.parse(document.getElementById('user_id').textContent)
+        console.log(bodyText,user_id)
         form.reset()
 
-        submitData(bodyText)
+        submitData(bodyText,user_id)
     })
 
-    let submitData = async(bodyText) => {
+    let submitData = async(bodyText,user_id) => {
         let response = await fetch('/add/', {
             method:'POST',
             headers:{
                 'Content-Type':'application/json',
                 'Accept': 'application/json'
             },
-            body:JSON.stringify({'body':bodyText})
+            body:JSON.stringify({'body':bodyText,'user':user_id}),
         })
 
         let data = await response.json()
@@ -79,9 +85,7 @@ $(document).ready(function(){
                     console.log();
                     var now = new Date()
                     var selected_date = new Date(response.Posts[post].created)
-                    console.log(now.getSeconds());
-                    console.log(selected_date.getSeconds());
-                    var tmp = "<h3>"+response.Posts[post].body+"   "+((now - selected_date)/1000).toFixed() +" Секунд назад";
+                    var tmp = "<h3>"+response.Posts[post].body+"   "+((now - selected_date)/1000).toFixed() +" Секунд назад. От пользователя "+response.Users[post] +" " ;
                     $("#post_list").append(tmp);
                 }
             },

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import model_to_dict
 
 
 class Customer(models.Model):
@@ -14,6 +15,7 @@ class Customer(models.Model):
 class Post(models.Model):
     body = models.CharField(max_length=250)
     created = models.DateTimeField(auto_now_add=True)
+    customer  = models.ForeignKey(Customer,on_delete=models.CASCADE, null=True, blank=True)
 
 
     def __str__(self):
